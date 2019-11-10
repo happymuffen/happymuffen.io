@@ -1,0 +1,47 @@
+/*Nav Bar*/
+
+/*colors
+ * 45696e (dark teal)
+ * b5a642 (brass)
+ */
+.navbar{
+	height:10%;
+	width:60%;
+	left:20%;
+	position: fixed;
+	z-index: 0;
+	top:0;
+	overflow:hidden;
+}
+.navbar a{
+	float:left;
+	width:16.666%;
+	height:100%;
+	text-align:center;
+	text-decoration:none;
+	font-size:25px;
+	display:block;
+	color:#45696e;
+	padding-top:3%;
+}
+.navbar a:hover{
+	color:#b5a642;
+}
+/* Gutters*/
+.lgutter{
+	height: 100%;
+	width:20%;
+	position: fixed;
+	z-index:0;
+	top:0;
+	left:0;
+	background-color: #fff;
+	overflow-x: hidden
+}
+
+.main {
+  margin-left: 20%;
+  margin-top: 10%;
+  padding: 0px 10px;
+  z-index:-1;
+}
