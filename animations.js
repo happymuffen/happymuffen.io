@@ -1,19 +1,59 @@
-document.getElementById("body").innerHTML="Hello World";
+//document.body.style.cursor='none';
+var speed=1;
+
+//only write one piece of text at a time
+var lock;
+var mousepos=[0,0];
+var wsize=[window.innerWidth,window.innerHeight];
 
 
-var aboutText=document.getElementById("about").innerHTML;
-var skillsText=document.getElementById("skills").innerHTML;
-var projectsText=document.getElementById("projects").innerHTML;
-var philosophyText=document.getElementById("philosophy").innerHTML;
-var artText=document.getElementById("art").innerHTML;
-var contactText=document.getElementById("contact").innerHTML;
+function init(){
+	cursor=document.getElementById("cursor");
+}
 
-document.getElementById("about").innerHTML="";
-document.getElementById("skills").innerHTML="";
-document.getElementById("projects").innerHTML="";
-document.getElementById("philosophy").innerHTML="";
-document.getElementById("art").innerHTML="";
-document.getElementById("contact").innerHTML="";
+
+function animate(text,element){
+	
+	lock=text;
+	var len=text.length;
+	var str="";
+	var i=0;
+	
+	function looper(){//idea: parse "\" as escape char
+		if (lock!=text) return;
+		if (i<len){
+			var c=text[i++];
+			if(c=="\n") c="<p>";
+			str+=c;
+			document.getElementById(element).innerHTML=str+"|";
+			var delay=70*Math.random()+10;
+			//pause for effect
+			if(c=="." || c=="?") delay=300;
+			if(c=="," || c==":" || c==";" || c=="(") delay=200
+			delay/=speed;
+			delay=0;
+			setTimeout(looper,delay);
+		}
+		else{
+			document.getElementById(element).innerHTML=str;
+		}
+	}
+	looper();
+}
+	
+//~ function mouseloop(time){
+	//~ <svg width="10" height="10" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+		 //~ <g class="layer">
+		  //~ <title>Layer 1</title>
+		  //~ <circle r="3" cx="5" cy="5" fill="none" id="cursor" stroke="#45696e" stroke-dasharray="null" stroke-linecap="round" stroke-linejoin="null" stroke-width="4" x1="4" x2="496" y1="2" y2="2"/>
+		 //~ </g>
+		//~ </svg>
+	//~ </div>
+	//~ cursor=document.getElementById("cursor");
+	//~ cursor.innerHTML='<svg width="'+wsize[0]+'" height="'+wsize[1]+'" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg"><g class="layer"><title>Layer 1</title><circle r="2" cx="'+mousepos[0]+'" cy="'+mousepos[1]+'" fill="none" id="cursor" stroke="#45696e" stroke-dasharray="null" stroke-linecap="round" stroke-linejoin="null" stroke-width="4" x1="4" x2="496" y1="2" y2="2"/></g></svg></div>'
+	//~ requestAnimationFrame(mouseloop);
+	//~ debug(mousepos);
+//~ }
 
 function multianimate(text,element){
 	var pars=text.split("\n");
@@ -43,13 +83,13 @@ function multianimate(text,element){
 		if (counts[index]<lens[index]){
 			dones[index]="|";
 			strs[index]+=pars[index][counts[index]++];
-			display();
+			requestAnimationFrame(display);
 			var delay=100*Math.random();
 			setTimeout(looper,delay,index);
 		}
 		else{
 			dones[index]="";
-			display();
+			requestAnimationFrame(display);
 		}
 	}
 	
@@ -59,22 +99,32 @@ function multianimate(text,element){
 	}
 }
 function about(){
-	multianimate(aboutText,"body");
+	animate(aboutText,"body");
 }
 function skills(){
-	multianimate(skillsText,"body");
+	animate(skillsText,"body");
 }
 function projects(){
-	multianimate(projectsText,"body");
+	animate(projectsText,"body");
 }
 function philosophy(){
-	multianimate(philosophyText,"body");
+	animate(philosophyText,"body");
 }
 function art(){
-	multianimate(artText,"body");
+	animate(artText,"body");
 }
 function contact(){
-	multianimate(contactText,"body");
+	animate(contactText,"body");
 }
 
-multianimate(aboutText,"body");
+function debug(text){
+	document.getElementById("debug").innerHTML="<p>"+text;
+}
+
+function mousemove(event){
+	mousepos=[event.clientX,event.clientY];
+}
+
+
+
+//requestAnimationFrame(mouseloop);
