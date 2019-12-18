@@ -6,49 +6,135 @@ var lock;
 var mousepos=[0,0];
 var wsize=[window.innerWidth,window.innerHeight];
 
-var svg_element="svg";
+const svg_element=document.getElementById("svg");
 
+class animation{
+	constructor(frames,instructions){
+		this.frames=frames;
+		this.instructions=instructions;
+		this.current=frames[0];
+	}
+	
+	animate(){
+		//requestAnimationFrame(animate_svg);
+		function callframe(time){
+			svg_element.innerHTML=out;
+		}
+		var header="<svg width=\""+wsize[0]+"\" height=\""+wsize[1]+"\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:svg=\"http://www.w3.org/2000/svg\"><g class=\"layer\"><title>Layer 1</title>\n";
+		var footer='\n</g></svg>';
+		var out=header+this.current.print()+footer;
+		requestAnivationFrame(callframe);
+		
+	}
+}
+
+class frame{
+	constructor(curves){
+		this.curves=curves;
+	}
+	move(dx,dy){
+		for(i=0;i<this.curves.len();++i){
+			this.curves[i].move(dx,dy);
+		}
+	}
+	recolor(color){
+		for(i=0;i<this.curves.len();++i){
+			this.curves[i].recolor(color);
+		}
+	}
+	print(){
+		var out="";
+		for(i=0;i<this.curves.len();++i){
+			out+=this.curves[i].print();
+		}
+		return out;
+	}
+}
+
+class cirlce{
+	constructor(c,r,color,width){
+		this.coords=c;
+		this.r=r;
+		this.color=color;
+		this.width=width;
+	}
+	move(dx,dy){
+		this.coords[0]+=dx;
+		this.coords[1]+=dy;
+	}
+	setpos(x,y){
+		this.coords=[x,y];
+	}
+	recolor(color){
+		this.color=color;
+	}
+	print(){
+		//<circle r="3" cx="5" cy="5" fill="none" id="cursor" stroke="#45696e" stroke-dasharray="null" stroke-linecap="round" stroke-linejoin="null" stroke-width="4" x1="4" x2="496" y1="2" y2="2"/>
+		var out="<circle r=\""+this.r+"\" cx=\""+this.coords[0]+"\" cy=\""+this.coords[1]+"\" fill=\"none\" id=\"circle\" stroke=\"#"+this.color+"\" stroke-width=\""+this.width+"\"/>";
+		return out;
+	}
+}
 class beziar{
 	constructor(p0,p1,p2,p3,color,width){
-		this.curve=[p0,p1,p2,p3];
+		this.coords=[p0,p1,p2,p3];
 		this.color=color;
 		this.width=width;
 	}
 	slice(per0,per1){
+		
+
 		function midpnt(p0,p1,per){
 			var x=p0[0]+(p1[0]-p0[0])*per;
 			var y=p0[1]+(p1[1]-p0[1])*per;
 			return [x,y];
 		}
-		function split(b0,b1,b2,b3,per){
-			if(per==0) return [new beziar(b0,b0,b0,b0,this.color,this.width),new beziar(b0,b1,b2,b3,this.color,this.width)];
-			if(per==1) return [new beziar(b0,b1,b2,b3),new beziar(b3,b3,b3,b3,this.color,this.width,this.color,this.width)];
-			var l1=midpnt(b0,b1);
-			var m=midpnt(b1,b2);
-			var r2=midpnt(b2,b3);
-			var l2=midpnt(l1,m);
-			var r1=midpnt(m,r2);
-			var splt=midpnt(l2,r1);
-			var l=new beziar(b0,l1,l2,splt);
-			var r=new beziar(splt,r1,r2,b1);
+		function split(b0,b1,b2,b3,per,color,width){
+			if(per==0) return [new beziar(b0,b0,b0,b0,color,width),new beziar(b0,b1,b2,b3,color,width)];
+			if(per==1) return [new beziar(b0,b1,b2,b3,color,width),new beziar(b3,b3,b3,b3,color,width)];
+			var l1=midpnt(b0,b1,per);
+			var m=midpnt(b1,b2,per);
+			var r2=midpnt(b2,b3,per);
+			var l2=midpnt(l1,m,per);
+			var r1=midpnt(m,r2,per);
+			var splt=midpnt(l2,r1,per);
+			debug(b0+" "+b1+" "+b2+" "+b3);
+			debug(b0+" "+l1+" "+l2+" "+splt+" "+r1+" "+r2+" "+b3);
+			var l=new beziar(b0,l1,l2,splt,color,width);
+			var r=new beziar(splt,r1,r2,b3,color,width);
 			return [l,r];
 		}
 		if(per0>1||per0<0||per1>1||per1<0){
 			return null;
 		}
-		var splt=split(this.curve[0],this.curve[1],this.curve[2],this.curve[3],per1);
-		var final=split(splt[1].curve[0],splt[1].curve[1],splt[1].curve[2],splt[1].curve[3],per1*per0);
 		
-		return final[0];
+		var splt=split(this.coords[0],this.coords[1],this.coords[2],this.coords[3],per1);
+		var final=split(splt[0].coords[0],splt[0].coords[1],splt[0].coords[2],splt[0].coords[3],per0/per1,this.color,this.width);
+		return final[1];
+	}
+	move(dx,dy){
+		for (i=0;i<4;++i){
+			this.coords[i][0]+=dx;
+			this.coords[i][1]+=dy;
+		}
+	}
+	setpos(x,y){
+		var dx=x-this.coords[0][0];
+		var dy=y-this.coords[0][1];
+		move(dx,dy);
+	}
+	recolor(color){
+		this.color=color;
 	}
 	print(){
-		var d="m"+this.curve[0][0]+","+this.curve[0][1]+"c"+this.curve[1][0]+","+this.curve[1][1]+" "+this.curve[2][0]+","+this.curve[2][1]+" "+this.curve[3][0]+","+this.curve[3][1];
-		var out="<path d=\""+d+"\" id=\"asdf\" stroke=\"#"+this.color+"\" stroke-width=\""+this.width+"\" fill=\"none\" stroke-linecap=\"round\">";
+		var d="M"+this.coords[0][0]+","+this.coords[0][1]+"C"+this.coords[1][0]+","+this.coords[1][1]+" "+this.coords[2][0]+","+this.coords[2][1]+" "+this.coords[3][0]+","+this.coords[3][1];
+		var out="<path d=\""+d+"\" id=\"asdf\" stroke=\"#"+this.color+"\" stroke-width=\""+this.width+"\" fill=\"none\" stroke-linecap=\"round\"></path>";
 		return out;
 	}
 }
 
-var objs=new beziar([10,20],[30,40],[500,60],[8,90],"45696e",5);
+var adsf=new beziar([50,50],[200,30],[80,20],[60,60],"aaaaaa",5);
+var objs=new beziar([50,50],[200,30],[80,20],[60,60],"45696e",5);
+objs=objs.slice(0,.8);
 
 function animate_text(text,element){
 	
@@ -83,9 +169,9 @@ function animate_svg(time){
 	
 	var header="<svg width=\""+wsize[0]+"\" height=\""+wsize[1]+"\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:svg=\"http://www.w3.org/2000/svg\"><g class=\"layer\"><title>Layer 1</title>\n";
 	var footer='\n</g></svg>';
-	var out=header+objs.print()+footer;
-
-	document.getElementById(svg_element).innerHTML=out;
+	var out=header+adsf.print()+objs.print()+footer;
+	console.log(out);
+	svg_element.innerHTML=out;
 	//requestAnimationFrame(animate_svg);
 	
 }
@@ -170,7 +256,7 @@ function contact(){
 }
 
 function debug(text){
-	document.getElementById("debug").innerHTML="<p>\\"+text+"";
+	document.getElementById("debug").innerHTML+="<p>"+text+"</p>";
 }
 
 //~ function mousemove(event){
