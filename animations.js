@@ -8,43 +8,70 @@ var wsize=[window.innerWidth,window.innerHeight];
 
 const svg_element=document.getElementById("svg");
 
-class animation{
-	constructor(frames,instructions){
-		this.frames=frames;
-		this.instructions=instructions;
-		this.current=frames[0];
+class sprite{//takes basic animation. more can be added after construction
+	constructor(idle){
+		this.animations=[idle];
+		this.queue=[];
 	}
-	
-	animate(){
-		//requestAnimationFrame(animate_svg);
-		function callframe(time){
-			svg_element.innerHTML=out;
-		}
-		var header="<svg width=\""+wsize[0]+"\" height=\""+wsize[1]+"\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:svg=\"http://www.w3.org/2000/svg\"><g class=\"layer\"><title>Layer 1</title>\n";
-		var footer='\n</g></svg>';
-		var out=header+this.current.print()+footer;
-		requestAnivationFrame(callframe);
-		
+	addAnimation(){
+		//TO DO
+	}
+	draw(){
+		//checks if there is anything to animate. if not, idle
+		if(!this.queue.length)this.queue=[0];
+		var out=this.animations[this.queue[0]].step();
+		if(this.animations[this.queue[0]].fin)this.queue.shift();
+		return out;
 	}
 }
 
-class frame{
+class animation{//takes frames of an animation
+	constructor(frames){
+		this.framelist=frames;
+		this.index=0;
+		this.len=this.framelist.length;
+		this.fin=true;
+	}
+	move(dx,dy){
+		for(var i=0;i<this.len;++i){
+			this.framelist[i].move(dx,dy);
+		}
+	}
+	step(){
+		var out=this.framelist[this.index++].print();
+		this.fin=false;
+		if(this.index>=this.len){
+			 this.index=0;
+			 this.fin=true;
+		 }
+		return out;
+	}
+	wait(){
+		return this.framelist[this.index].print();
+	}
+	reset(){
+		this.index=0;
+		this.fin=true;
+	}
+}
+
+class frame{//assembles basic svg elements into a frame object
 	constructor(curves){
 		this.curves=curves;
 	}
 	move(dx,dy){
-		for(i=0;i<this.curves.len();++i){
+		for(var i=0;i<this.curves.length;++i){
 			this.curves[i].move(dx,dy);
 		}
 	}
 	recolor(color){
-		for(i=0;i<this.curves.len();++i){
+		for(var i=0;i<this.curves.length;++i){
 			this.curves[i].recolor(color);
 		}
 	}
 	print(){
 		var out="";
-		for(i=0;i<this.curves.len();++i){
+		for(var i=0;i<this.curves.length;++i){
 			out+=this.curves[i].print();
 		}
 		return out;
@@ -97,8 +124,8 @@ class beziar{
 			var l2=midpnt(l1,m,per);
 			var r1=midpnt(m,r2,per);
 			var splt=midpnt(l2,r1,per);
-			debug(b0+" "+b1+" "+b2+" "+b3);
-			debug(b0+" "+l1+" "+l2+" "+splt+" "+r1+" "+r2+" "+b3);
+			//debug(b0+" "+b1+" "+b2+" "+b3);
+			//debug(b0+" "+l1+" "+l2+" "+splt+" "+r1+" "+r2+" "+b3);
 			var l=new beziar(b0,l1,l2,splt,color,width);
 			var r=new beziar(splt,r1,r2,b3,color,width);
 			return [l,r];
@@ -112,7 +139,7 @@ class beziar{
 		return final[1];
 	}
 	move(dx,dy){
-		for (i=0;i<4;++i){
+		for (var i=0;i<4;++i){
 			this.coords[i][0]+=dx;
 			this.coords[i][1]+=dy;
 		}
@@ -135,6 +162,18 @@ class beziar{
 var adsf=new beziar([50,50],[200,30],[80,20],[60,60],"aaaaaa",5);
 var objs=new beziar([50,50],[200,30],[80,20],[60,60],"45696e",5);
 objs=objs.slice(0,.8);
+var f1=new frame([adsf,objs]);
+var obs2=new beziar([50,50],[200,30],[80,20],[60,60],"45696e",5);
+obs2=obs2.slice(0,.6)
+frames=[]
+for(i=1;i<101;i++){
+	var curve=new beziar([50,50],[200,30],[80,20],[60,60],"45696e",5);
+	curve=curve.slice(0,i/100);
+	var f=new frame([adsf,curve])
+	frames.push(f);
+}
+var ani=new animation(frames);
+var spr=new sprite(ani);
 
 function animate_text(text,element){
 	
@@ -169,10 +208,10 @@ function animate_svg(time){
 	
 	var header="<svg width=\""+wsize[0]+"\" height=\""+wsize[1]+"\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:svg=\"http://www.w3.org/2000/svg\"><g class=\"layer\"><title>Layer 1</title>\n";
 	var footer='\n</g></svg>';
-	var out=header+adsf.print()+objs.print()+footer;
-	console.log(out);
+	var out=header+adsf.print()+spr.draw()+footer;
+	//console.log(out);
 	svg_element.innerHTML=out;
-	//requestAnimationFrame(animate_svg);
+	requestAnimationFrame(animate_svg);
 	
 }
 	
@@ -200,7 +239,7 @@ function multianimate(text,element){
 	var lens=[pars[0].length];
 	var dones=[""];
 	var counts=[0];
-	for(i=1;i<len;i++){
+	for(var i=1;i<len;i++){
 		strs=strs.concat([""]);
 		lens=lens.concat([pars[i].length]);
 		dones=dones.concat([""]);
@@ -211,7 +250,7 @@ function multianimate(text,element){
 		var str="";
 		
 		
-		for(i=0;i<len;i++){
+		for(var i=0;i<len;i++){
 			str+="<p>"+strs[i]+dones[i];
 		}
 		
@@ -232,7 +271,7 @@ function multianimate(text,element){
 	}
 	
 	
-	for(i=0;i<len;i++){
+	for(var i=0;i<len;i++){
 		setTimeout(looper,300*i,i);
 	}
 }
