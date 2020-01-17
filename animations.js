@@ -25,12 +25,13 @@ class sprite{//takes basic animation. more can be added after construction
 	}
 }
 
-class animation{//takes frames of an animation
+class animation{//takes frames of an animation and positive numbers indicating wait time
 	constructor(frames){
 		this.framelist=frames;
 		this.index=0;
 		this.len=this.framelist.length;
 		this.fin=true;
+		this.counter=-1;
 	}
 	move(dx,dy){
 		for(var i=0;i<this.len;++i){
@@ -38,8 +39,26 @@ class animation{//takes frames of an animation
 		}
 	}
 	step(){
-		var out=this.framelist[this.index++].print();
-		this.fin=false;
+		var out;
+		if(typeof this.framelist[this.index]=="number"){
+			if (this.counter<0) this.counter=this.framelist[this.index];
+			if (this.counter>0) out=this.framelist[this.index-1].print();
+			else{
+				this.counter-=1;
+				this.index++;
+				if(this.index>=this.len){
+					this.index=0;
+					this.fin=true;
+				}
+				return this.step();
+			}
+			this.counter-=1;
+			return out;
+		}
+		else{
+			out=this.framelist[this.index++].print();
+			this.fin=false;
+		}
 		if(this.index>=this.len){
 			 this.index=0;
 			 this.fin=true;
@@ -166,11 +185,12 @@ var f1=new frame([adsf,objs]);
 var obs2=new beziar([50,50],[200,30],[80,20],[60,60],"45696e",5);
 obs2=obs2.slice(0,.6)
 frames=[]
-for(i=1;i<101;i++){
+for(i=1;i<=20;i++){
 	var curve=new beziar([50,50],[200,30],[80,20],[60,60],"45696e",5);
-	curve=curve.slice(0,i/100);
+	curve=curve.slice(0,i/20);
 	var f=new frame([adsf,curve])
 	frames.push(f);
+	frames.push(i);
 }
 var ani=new animation(frames);
 var spr=new sprite(ani);
