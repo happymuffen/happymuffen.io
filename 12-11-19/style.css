@@ -4,33 +4,25 @@
  * 45696e (dark teal)
  * b5a642 (brass)
  */
- p{
-	margin: auto;
-	width:50%;
-	color:#45696e;
-	padding:5px;
- }
  
 .body{
 	height:100%;
 	width:100%;
+	background-color:#fff;
+	position:relative;
 	z-index:2;
-	position:relative
 }
 .navbar{
-	position:fixed;
-	margin:auto;
 	height:10%;
 	width:60%;
 	left:20%;
-	z-index: 0;
+	position: fixed;
+	z-index: 2;
 	top:0;
 	overflow:hidden;
-	background-color:#fff;
-	
+	//background-color:#fff;
 }
 .navbar a{
-	margin:auto;
 	float:left;
 	width:15%;
 	height:100%;
@@ -40,36 +32,47 @@
 	display:block;
 	color:#45696e;
 	padding-top:3%;
-	z-index:2;
-	
+	z-index:6;
 }
 .navbar a:hover{
 	color:#b5a642;
-	
 }
-.navbar a:active{
-	border-bottom: 6px solid red;
-}
-.svg{
+.cursor{
 	position:fixed;
-	left:0px;
-	top:0px;
 	height:100%;
 	width:100%;
-	z-index:-2;
+	z-index:1;
+}
+/* Gutters*/
+.lgutter{
+	height: 100%;
+	width:20%;
+	position: fixed;
+	z-index:0;
+	top:0;
+	left:0;
+	background-color: #fff;
+	overflow-x: hidden
 }
 
-.spacer{
-	height:120px;
-	margin:auto;
-	z-index:-5;
+.rgutter{
+	height: 100%;
+	width:20%;
+	position: fixed;
+	z-index:0;
+	top:0;
+	left:80%;
+	background-color: #fff;
+	overflow-x: hidden
 }
 
 .main {
+	position:fixed;
 	margin-left: 20%;
 	margin-right: 20%;
 	margin-top: 5%;
 	z-index:-1;
+	background-color:#fff;
 	height:100%;
 	width:60%;
 }
