@@ -1,0 +1,83 @@
+/*Nav Bar*/
+
+/*colors
+ * 45696e (dark teal)
+ * b5a642 (brass)
+ */
+ p{
+	margin: auto;
+	width:50%;
+	color:#45696e;
+	padding:5px;
+ }
+ 
+.body{
+	height:100%;
+	width:100%;
+	z-index:2;
+	position:relative
+}
+.navbar{
+	position:fixed;
+	margin:auto;
+	height:10%;
+	width:60%;
+	left:20%;
+	z-index: 0;
+	top:0;
+	overflow:hidden;
+	background-color:#fff;
+	
+}
+.navbar a{
+	margin:auto;
+	float:left;
+	width:15%;
+	height:100%;
+	text-align:center;
+	text-decoration:none;
+	font-size:25px;
+	display:block;
+	color:#45696e;
+	padding-top:3%;
+	z-index:2;
+	
+}
+.navbar a:hover{
+	color:#b5a642;
+	
+}
+.navbar a:active{
+	border-bottom: 6px solid red;
+}
+.svg{
+	position:fixed;
+	left:0px;
+	top:0px;
+	height:100%;
+	width:100%;
+	z-index:-2;
+}
+
+.spacer{
+	height:120px;
+	margin:auto;
+	z-index:-5;
+}
+
+.main {
+	margin-left: 20%;
+	margin-right: 20%;
+	margin-top: 5%;
+	z-index:-1;
+	height:100%;
+	width:60%;
+}
+
+.debug{
+	position:fixed;
+	left:0;
+	bottom:0;
+	width:100%;
+	overflow-wrap:break-word;
+}
