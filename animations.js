@@ -36,11 +36,17 @@ function debug(text){
 	document.getElementById("debug").innerHTML+="<p>"+text+"</p>";
 }
 
+function animateSVG(){
+	
+}
 
 function startBf(){
 	const butterfly=new sprite("butterfly");
 	bfjs(butterfly);
-	svg_element.innerHTML=butterfly.idle();
+	function frame(){
+		svg_element.innerHTML=butterfly.move();
+	}
+	var id=setInterval(frame,100);
 }
 
 window.onload=startBf;
