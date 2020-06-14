@@ -9,9 +9,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="8.9317894mm"
+   height="6.6381903mm"
+   viewBox="0 0 8.9317894 6.6381903"
    version="1.1"
    id="svg8"
    inkscape:version="0.92.1 r15371"
@@ -25,17 +25,21 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7.9195959"
-     inkscape:cx="394.82021"
-     inkscape:cy="560.36097"
+     inkscape:zoom="11.2"
+     inkscape:cx="4.8698174"
+     inkscape:cy="5.8898466"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer4"
+     inkscape:current-layer="svg8"
      showgrid="false"
-     inkscape:window-width="716"
-     inkscape:window-height="403"
-     inkscape:window-x="1075"
-     inkscape:window-y="511"
-     inkscape:window-maximized="0" />
+     inkscape:window-width="1852"
+     inkscape:window-height="1057"
+     inkscape:window-x="60"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -44,7 +48,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -52,7 +56,8 @@
      inkscape:groupmode="layer"
      id="layer4"
      inkscape:label="idle"
-     style="display:inline">
+     style="display:inline"
+     transform="translate(-99.490165,-143.36383)">
     <g
        style="display:inline"
        inkscape:label="ant-twitch"
@@ -132,8 +137,8 @@
        inkscape:groupmode="layer"
        id="layer3"
        inkscape:label="static"
-       sodipodi:insensitive="true"
-       style="display:inline">
+       style="display:inline"
+       sodipodi:insensitive="true">
       <path
          style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          d="m 104.37858,148.76728 c 3.79221,-1.86739 3.87066,-5.07058 2.77571,-5.26917 -0.93788,0.15631 -6.06766,1.55725 -2.77571,5.26917 z"
@@ -159,7 +164,8 @@
      inkscape:groupmode="layer"
      id="layer1"
      style="display:none"
-     sodipodi:insensitive="true">
+     sodipodi:insensitive="true"
+     transform="translate(-99.490165,-143.36383)">
     <path
        style="fill:none;stroke:#000000;stroke-width:0.26499999;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 105,148.5 v 0"
@@ -170,11 +176,14 @@
      inkscape:groupmode="layer"
      id="layer6"
      inkscape:label="flap"
-     style="display:inline">
+     style="display:inline"
+     transform="translate(-99.490165,-143.36383)"
+     sodipodi:insensitive="true">
     <g
        inkscape:groupmode="layer"
        id="layer7"
        inkscape:label="flap 1"
-       style="display:inline" />
+       style="display:inline"
+       sodipodi:insensitive="true" />
   </g>
 </svg>
