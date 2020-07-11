@@ -41,6 +41,13 @@ export class sprite{//takes svg file and instruction set
 		this.y=0;
 		this.stack=[];
 		this.layerIndex=this.idleIndex;
+		this.timer=[0];
+		this.currentFrame="";
+		//get length and width of animation space for scale
+		var w=window,d=document,e=d.documentElement,g=d.getElementsByTagName('body')[0],x=w.innerWidth||e.clientWidth||g.clientWidth,y=w.innerHeight||e.clientHeight||g.clientHeight;
+		this.width=x;
+		this.height=y;
+		
 	}
 	
 	print(svg){
@@ -50,7 +57,7 @@ export class sprite{//takes svg file and instruction set
 			if(this.headers[i].name=="width" || this.headers[i].name=="height") continue;
 			header+=this.headers[i].name+"=\""+this.headers[i].value+"\"\n";
 		}
-		header+="width=\"100vw\" height=\"100vh\">\n";
+		header+="width=\""+this.width+"px\" height=\""+this.height+"px\">\n";
 		var footer='\n</g></svg>';
 		var layerLabel="<g ";
 		var layerData=this.layersData[this.layerIndex];
@@ -60,15 +67,23 @@ export class sprite{//takes svg file and instruction set
 		}
 		layerLabel+=">";
 		var out=header+layerLabel+svg+footer;
+		this.currentFrame=out;
 		return out;
 	}
 	idle(){//overwrites animation stack and layerIndex with idle
 		this.stack=JSON.parse(JSON.stringify(this.spriteSheets[this.idleIndex]));//deep copy spritesheet
 		this.layerIndex=this.idleIndex;
+		var timer=[];
+		for (var i=0;i<this.stack.length;i++)timer.push(1);
+		this.timer=timer;
+		this.currentFrame=this.print(this.stack[0]);
 	}
 	move(){//returns next frame in stack. Idles if stack is empty.
+		//returns current frame if timer>0
 		if(this.stack.length==0) this.idle();
-		var currentFrame=this.stack.shift();
-		return this.print(currentFrame);
+		if(this.timer[0]>0){this.timer[0]-=1;return this.currentFrame}
+		var nextFrame=this.stack.shift();
+		this.timer.shift();
+		return this.print(nextFrame);
 	}
 }
