@@ -37,8 +37,8 @@ export class sprite{//takes svg file and instruction set
 		this.backupIndexs=layernums;
 		this.spriteSheets=spritesheets;
 		this.backup=raw;
-		this.x=0;
-		this.y=0;
+		this.x=80;
+		this.y=-30;
 		this.stack=[];
 		this.layerIndex=this.idleIndex;
 		this.timer=[0];
@@ -47,32 +47,17 @@ export class sprite{//takes svg file and instruction set
 		var w=window,d=document,e=d.documentElement,g=d.getElementsByTagName('body')[0],x=w.innerWidth||e.clientWidth||g.clientWidth,y=w.innerHeight||e.clientHeight||g.clientHeight;
 		this.width=x;
 		this.height=y;
-		
 	}
 	
 	print(svg){
 		//output text for current frame
-		var header="<svg "
-		for(var i=0;i<this.headers.length;i++){
-			if(this.headers[i].name=="width" || this.headers[i].name=="height") continue;
-			header+=this.headers[i].name+"=\""+this.headers[i].value+"\"\n";
-		}
-		header+="width=\""+this.width+"px\" height=\""+this.height+"px\">\n";
-		var footer='\n</g></svg>';
-		var layerLabel="<g ";
-		var layerData=this.layersData[this.layerIndex];
-		for(var i=0;i<layerData.length;i++){
-			
-			layerLabel+=layerData[i].name+"=\""+layerData[i].value+"\"\n";
-		}
-		layerLabel+=">";
-		var out=header+layerLabel+svg+footer;
+		var out=svg;
 		this.currentFrame=out;
 		return out;
 	}
 	idle(){//overwrites animation stack and layerIndex with idle
-		this.stack=JSON.parse(JSON.stringify(this.spriteSheets[this.idleIndex]));//deep copy spritesheet
 		this.layerIndex=this.idleIndex;
+		this.stack=this.svg_reformat(this.spriteSheets[this.idleIndex]);//deep copy spritesheet
 		var timer=[];
 		for (var i=0;i<this.stack.length;i++)timer.push(1);
 		this.timer=timer;
@@ -83,7 +68,72 @@ export class sprite{//takes svg file and instruction set
 		if(this.stack.length==0) this.idle();
 		if(this.timer[0]>0){this.timer[0]-=1;return this.currentFrame}
 		var nextFrame=this.stack.shift();
+		nextFrame=this.svg_set_position(nextFrame);
 		this.timer.shift();
 		return this.print(nextFrame);
+	}
+	svg_reformat(raw){//takes frames of partial svg data aray and formats it to proper svg
+		//get header data from original
+		var layerLabel="<g ";
+		var layerData=this.layersData[this.layerIndex];
+		for(var i=0;i<layerData.length;i++){
+			
+			layerLabel+=layerData[i].name+"=\""+layerData[i].value+"\"\n";
+		}
+		layerLabel+=">";
+		
+		var header="<svg "
+		for(var i=0;i<this.headers.length;i++){
+			if(this.headers[i].name=="width" || this.headers[i].name=="height") continue;
+			header+=this.headers[i].name+"=\""+this.headers[i].value+"\"\n";
+		}
+		header+="width=\""+this.width+"px\" height=\""+this.height+"px\">\n";
+		var footer='\n</g></svg>';
+		
+		//add everything together
+		var out=[]
+		for(var i=0;i<raw.length;i++){
+			out.push(header+layerLabel+raw[i]+footer);
+		}
+		return out;
+	}
+	svg_set_position(svg){//adds this.x and y to svg
+		//parse svg into xml
+		var parsed;
+		if (window.DOMParser)
+		{
+			var parser = new DOMParser();
+			parsed = parser.parseFromString(svg, "text/xml");
+		}
+		else
+		{
+			parsed = new ActiveXObject("Microsoft.XMLDOM");
+			parsed.async = false;
+			parsed.loadXML(svg);
+		}
+		var elements=parsed.getElementsByTagName("path");
+		//add values to each element
+		var tmp=[];
+		var xy=[];
+		var str="";
+		for(var i=0;i<elements.length;i++){
+			tmp=elements[i].attributes["d"].value.split(" ")
+			console.log(tmp);
+			xy=tmp[1].split(",");
+			xy=[this.x+Number(xy[0]),this.y+Number(xy[1])];
+			tmp[1]=xy[0]+","+xy[1];
+			str="";
+			for(;tmp.length>0;str+=tmp.shift()+" ")//I'm unreasonably proud of this for loop :D
+			elements[i].attributes["d"].value=str;
+		}
+		//return to string and output
+		str="";
+		for(var i=0;i<elements.length;i++){
+			str+=elements[i].outerHTML+"\n";
+		}		
+		svg=this.svg_reformat([str]);
+		
+		
+		return svg;
 	}
 }
