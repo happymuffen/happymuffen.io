@@ -44,7 +44,7 @@ function startBf(){
 	const butterfly=new sprite("butterfly");
 	bfjs(butterfly);
 	function frame(){
-		svg_element.innerHTML=butterfly.move();
+		svg_element.innerHTML=butterfly.next();
 	}
 	var id=setInterval(frame,100);
 }

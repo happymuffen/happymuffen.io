@@ -32,11 +32,11 @@ export class sprite{//takes svg file and instruction set
 			spritesheets.push(frames);
 			frames=[];
 		}
-		this.e=e;
-		this.raw=raw;
-		this.backupIndexs=layernums;
+		//this.e=e;
+		//this.raw=raw;
+		//this.backupIndexs=layernums;
 		this.spriteSheets=spritesheets;
-		this.backup=raw;
+		//this.backup=raw;
 		this.x=80;
 		this.y=-30;
 		this.stack=[];
@@ -47,6 +47,7 @@ export class sprite{//takes svg file and instruction set
 		var w=window,d=document,e=d.documentElement,g=d.getElementsByTagName('body')[0],x=w.innerWidth||e.clientWidth||g.clientWidth,y=w.innerHeight||e.clientHeight||g.clientHeight;
 		this.width=x;
 		this.height=y;
+		this.memory=[];
 	}
 	
 	print(svg){
@@ -55,7 +56,7 @@ export class sprite{//takes svg file and instruction set
 		this.currentFrame=out;
 		return out;
 	}
-	idle(){//overwrites animation stack and layerIndex with idle
+	idle(){//overwrites animation stack and layerIndex with idle (overwrite)
 		this.layerIndex=this.idleIndex;
 		this.stack=this.svg_reformat(this.spriteSheets[this.idleIndex]);//deep copy spritesheet
 		var timer=[];
@@ -63,11 +64,12 @@ export class sprite{//takes svg file and instruction set
 		this.timer=timer;
 		this.currentFrame=this.print(this.stack[0]);
 	}
-	move(){//returns next frame in stack. Idles if stack is empty.
+	next(){//returns next frame in stack. Idles if stack is empty.
 		//returns current frame if timer>0
 		if(this.stack.length==0) this.idle();
 		if(this.timer[0]>0){this.timer[0]-=1;return this.currentFrame}
 		var nextFrame=this.stack.shift();
+		this.svg_ai();
 		nextFrame=this.svg_set_position(nextFrame);
 		this.timer.shift();
 		return this.print(nextFrame);
@@ -118,12 +120,12 @@ export class sprite{//takes svg file and instruction set
 		var str="";
 		for(var i=0;i<elements.length;i++){
 			tmp=elements[i].attributes["d"].value.split(" ")
-			console.log(tmp);
+			//console.log(tmp);
 			xy=tmp[1].split(",");
 			xy=[this.x+Number(xy[0]),this.y+Number(xy[1])];
 			tmp[1]=xy[0]+","+xy[1];
 			str="";
-			for(;tmp.length>0;str+=tmp.shift()+" ")//I'm unreasonably proud of this for loop :D
+			for(;tmp.length>0;str+=tmp.shift()+" ");//I'm unreasonably proud of this for loop :D
 			elements[i].attributes["d"].value=str;
 		}
 		//return to string and output
@@ -135,5 +137,9 @@ export class sprite{//takes svg file and instruction set
 		
 		
 		return svg;
+	}
+	svg_ai(){//changes changes things like position every tick (overwrite) 
+		//this.x+=1, this.y+=1;
+		return;
 	}
 }

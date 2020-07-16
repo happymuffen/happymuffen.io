@@ -10,6 +10,8 @@ function idle(){
 	this.stack=this.svg_reformat(this.spriteSheets[this.idleIndex]);//deep copy spritesheet
 	this.timer=[0,Math.floor(100* Math.random()),0,Math.floor(100* Math.random())];
 	this.currentFrame=this.print(this.stack[0]);
+	
+	this.memory=["idle"];
 
 	//console.log("flap flap flap");
 }
@@ -21,4 +23,15 @@ function onMouseMove(){
 	
 	//set time steps
 	
+}
+
+function svg_ai(){
+	switch(this.memory[0]){
+		case "idle"://no ai required
+			break;
+		case "moving":
+			//memory:["moving", path[], t, speed]
+			
+			break;
+	}
 }
