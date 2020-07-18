@@ -143,3 +143,57 @@ export class sprite{//takes svg file and instruction set
 		return;
 	}
 }
+
+class path{//abstract beziar curve. This is going to take a lot of math
+	constructor(points,absolute){//takes an array of 4 points [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
+		this.start=points[0];
+		this.end=points[points.length-1];
+		this.points=points;
+		this.absolute=absolute;//are the points in absolute value or relative to the start?
+	}
+	split(t){//subdivides the path at the percentage through, t, returning 2 paths.
+		function midpoint(p1,p2,t){//finds the altered midpoint between 2 points
+			var x=p1[0]+(p2[0]-p1[0])*t;
+			var y=p1[1]+(p2[1]-p1[1])*t;
+			return [x,y];
+		}
+		if(t==0) return [new path([this.start,[0,0],[0,0],[0,0]],false),new path(this.points,this.absolute)];
+		if(t==1) return [new path(this.points,this.absolute),new path([this.end,[0,0],[0,0],[0,0]],false)];
+		
+		var l1=0;//if relative handle first point differently
+		if(this.absolute)l1=midpoint(this.start,this.points[1],t);
+		else l1=midpoint([0,0],this.points[1],t);
+		
+		var m=midpoint(this.points[1],this.points[2],t);
+		var r2=midpoint(this.points[2],this.end,t);
+		var l2=midpoint(l1,m,t);
+		var r1=midpoint(m,r2,t);
+		var c=midpoint(l2,r1,t);
+		
+		if(this.absolute)return [new path([this.start,l1,l2,c],true),new path([c,r1,r2,this.end],true)];
+		function add_p(p1,p2){//adds the x and y components of 2 points
+			return [p1[0]+p2[0],p1[1]+p2[1]];
+		}
+		var nc=[c[0]*-1,c[1]*-1];
+		var r=[add_p(this.start,c),add_p(r1,nc),add_p(r2,nc),add_p(this.end,nc)];
+		
+		return [new path([this.start,l1,l2,c],false),new path(r,false)];
+	}
+	extend(p1, p2){//produces a new curve that attatches continuously from this curve to the 2nd point modified by the first
+		
+		
+	}
+	length(){//finds the length of the curve (i think, not sure if this actually checks out
+		function dist(p1,p2){
+			return Math.sqrt(Math.pow(p1[0]-p2[0],2)+Math.pow(p1[1]-p2[1],2));
+		}
+		d1=this.help_len();
+		tmps=this.split(.5);
+		d2=tmps[0].help_len()+tmps[1].help_len();
+		return (2*d2)-d1;//there's no way this is actually right.
+		
+	}
+	help_len(){
+		return dist(this.start,this.points[1])+dist(this.points[1],this.points[2])+dist(this.points[2],this.end);
+	}
+}
