@@ -48,6 +48,7 @@ export class sprite{//takes svg file and instruction set
 		this.width=x;
 		this.height=y;
 		this.memory=[];
+		this.lmp=[0,0];
 	}
 	
 	print(svg){
@@ -136,7 +137,7 @@ export class sprite{//takes svg file and instruction set
 		svg=this.svg_reformat([str]);
 		
 		
-		return svg;
+		return svg[0];
 	}
 	svg_ai(){//changes changes things like position every tick (overwrite) 
 		//this.x+=1, this.y+=1;
@@ -144,12 +145,31 @@ export class sprite{//takes svg file and instruction set
 	}
 }
 
-class path{//abstract beziar curve. This is going to take a lot of math
+export class path{//abstract beziar curve. This is going to take a lot of math
 	constructor(points,absolute){//takes an array of 4 points [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
 		this.start=points[0];
 		this.end=points[points.length-1];
 		this.points=points;
 		this.absolute=absolute;//are the points in absolute value or relative to the start?
+	}
+	get_point(t){//gets x,y value at a point t% along the path
+		var x=0;
+		var y=0;
+		for(var i=1;i<3;i++){
+			x+=3*Math.pow(1-t,3-i)*Math.pow(t,i)*this.points[i][0];
+			y+=3*Math.pow(1-t,3-i)*Math.pow(t,i)*this.points[i][1];
+		}
+		x+=Math.pow(1-t,3)*this.end[0];
+		y+=Math.pow(1-t,3)*this.end[1];
+		if(this.absolute){
+			x+=Math.pow(1-t,3)*this.start[0];
+			y+=Math.pow(1-t,3)*this.start[1];
+		}
+		else{
+			x+=this.start[0];
+			y+=this.start[1];
+		}
+		return [x,y];
 	}
 	split(t){//subdivides the path at the percentage through, t, returning 2 paths.
 		function midpoint(p1,p2,t){//finds the altered midpoint between 2 points
@@ -179,9 +199,22 @@ class path{//abstract beziar curve. This is going to take a lot of math
 		
 		return [new path([this.start,l1,l2,c],false),new path(r,false)];
 	}
-	extend(p1, p2){//produces a new curve that attatches continuously from this curve to the 2nd point modified by the first
-		
-		
+	extend(p3, p4){//produces a new curve that attatches continuously from this curve to the 2nd point modified by the first
+		var p1=[];
+		var p2=[];
+		if (this.absolute){
+			p1=this.end;
+			var dx=this.points[2][0]-p1[0];
+			var dy=this.points[2][1]-p1[1];
+			p2=[p1[0]-dx,p1[1]-dy];
+		}
+		else{
+			p1=[this.start[0]+this.end[0].this.start[1]+this.end[1]];
+			var x=(this.points[2][0]-this.end[0])*-1;
+			var y=(this.points[2][1]-this.end[1])*-1;
+			p2=[x,y];
+		}
+		return new path([p1,p2,p3,p4],this.absolute);
 	}
 	length(){//finds the length of the curve (i think, not sure if this actually checks out
 		function dist(p1,p2){
@@ -193,7 +226,7 @@ class path{//abstract beziar curve. This is going to take a lot of math
 		return (2*d2)-d1;//there's no way this is actually right.
 		
 	}
-	help_len(){
+	help_len(){//helper function for finding length
 		return dist(this.start,this.points[1])+dist(this.points[1],this.points[2])+dist(this.points[2],this.end);
 	}
 }

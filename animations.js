@@ -5,12 +5,12 @@ var speed=1;
 var lock;
 var mousepos=[0,0];
 var wsize=[window.innerWidth,window.innerHeight];
-var butterfly;
+//var butterfly;
 
 const svg_element=document.getElementById("svg");
 
 import {sprite} from './modules/animate_functions.js';
-import {bfjs} from './modules/butterfly.js';
+import {butterfly} from './modules/butterfly.js';
 
 
 function about(){
@@ -41,12 +41,12 @@ function animateSVG(){
 }
 
 function startBf(){
-	const butterfly=new sprite("butterfly");
-	bfjs(butterfly);
+	const bf=new butterfly("butterfly");
+	//bfjs(butterfly);
 	function frame(){
-		svg_element.innerHTML=butterfly.next();
+		svg_element.innerHTML=bf.next();
 	}
-	var id=setInterval(frame,100);
+	var id=setInterval(frame,40);
 }
 
 window.onload=startBf;
