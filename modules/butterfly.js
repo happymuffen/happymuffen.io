@@ -11,7 +11,7 @@ export class butterfly extends sprite{
 	if (this.lmp.toString()!=[this.x,this.y].toString()) {this.move();return;}//check if movement is required
 	this.layerIndex=this.idleIndex;
 	this.stack=this.svg_reformat(this.spriteSheets[this.idleIndex]);
-	this.timer=[0,Math.floor(100* Math.random()),0,Math.floor(100* Math.random())];
+	this.timer=[0,Math.floor(500* Math.random()),0,Math.floor(500* Math.random())];
 	this.currentFrame=this.print(this.stack[0]);
 	
 	this.memory=["idle"];
@@ -55,7 +55,7 @@ export class butterfly extends sprite{
 	}
 
 	moving(){
-		//memory:["moving", path[], progress, speed]
+		//memory:["moving", path[], progress, total_steps]
 		if (this.memory[2] >=this.memory[3]) {this.idle();return;}//check if further movement is required
 		this.memory[2]++;
 		[this.x,this.y]=this.memory[1].get_point(this.memory[2]/this.memory[3]);

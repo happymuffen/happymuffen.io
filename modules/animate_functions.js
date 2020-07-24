@@ -152,7 +152,10 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 		this.points=points;
 		this.absolute=absolute;//are the points in absolute value or relative to the start?
 	}
+	
+	
 	get_point(t){//gets x,y value at a point t% along the path
+		//B(t)=(1-t)^3*P0+3(1-t)^2*t*P1+3(1-t)*t^2*P2+t^3P3,	0<=t<=1
 		var x=0;
 		var y=0;
 		for(var i=1;i<3;i++){
@@ -171,6 +174,82 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 		}
 		return [x,y];
 	}
+	get_slope(t){//finds derivative of curve at a point %t along the path
+		//B'(t)=3(1-t)^2(P1-P0)+6(1-t)t(P2-P1)+3t^2(P3-P2),	0<=t<=1
+		var dx=0, dy=0;
+		var start=[0,0];
+		if(this.absolute)start=this.start;
+		dx=3*Math.pow(1-t,2)*(this.points[1][0]-start[0]);
+		dx+=6*(1-t)*t*(this.points[2][0]-this.points[1][0]);
+		dx+=3*Math.pow(t,2)*(this.end[0]-this.points[2][0]);
+		
+		dy=3*Math.pow(1-t,2)*(this.points[1][1]-start[1]);
+		dy+=6*(1-t)*t*(this.points[2][1]-this.points[1][1]);
+		dy+=3*Math.pow(t,2)*(this.end[1]-this.points[2][1]);
+		
+		return [dx,dy];
+	}
+	
+	//transform functions
+	translate(d){//produces new curve translated by d
+		var points=this.points;
+		if(this.absolute){
+			for(var i=0;i>4;i++){
+				points[i]=[points[i][0]+c[0],points[i][1]+c[1]];
+			}
+		}
+		else points[0]=[points[0][0]+c[0],points[0][1]+c[1]];
+		return new path(points,this.absolute);
+	}
+	rotate(c,t){//produces a new curve rotated about point c by angle t (radians)
+		//shift everything so c is at 0,0
+		var shift=this.translate([c[0]*-1,c[1]*-1]);
+		var points=shift.points;
+		//rotate everything
+		var start
+		for(var i=0;i<4;i++){
+			var x=[points[i][0]*Math.cos(t)-points[i][1]*Math.sin(t)];
+			var y=[points[i][1]*Math.cos(t)+points[i][0]*Math.sin(t)];
+			points[i]=[x,y];
+		}
+		//shifts everything back
+		shift=new path(points,this.absolute);
+		return shift.translate(c);
+	}
+	skew(c,d){//multiplies eveything by scaler d[] reletive to point c
+		//reposition points to be reletive to c
+		var points=this.points
+		var x=0,y=0;
+		points[0]=[points[0][0]-c[0],points[0][1]-c[1]];
+		if(this.absolute){
+			for(var i=1;i<4;i++){
+				points[i]=[points[i][0]-c[0],points[i][1]-c[1]];
+			}
+		}
+		else{
+			for(var i=1;i<4;i++){
+				points[i]=[points[i][0]+points[0][0],points[i][1]+points[0][1]];
+			}
+		}
+		//skew everything
+		for(var i=0;i<4;i++){
+			point[i]=[point[i][0]*d[0],point[i][1]*d[1]];
+		}
+		//reposition everything back
+		if(this.absolute){
+			for(var i=0;i<4;i++){
+				points[i]=[points[i][0]+c[0],points[i][1]+c[1]];
+			}
+			return new curve(points,true);
+		}
+		for(var i=1;i<4;i++){
+			points[i]=[points[i][0]-points[0][0],points[i][1]-points[0][1]];
+			
+		}
+		points[0]=[points[0][0]+c[0],points[0][1]+c[1]];
+		return new curve(points,false);
+	}
+	
 	split(t){//subdivides the path at the percentage through, t, returning 2 paths.
 		function midpoint(p1,p2,t){//finds the altered midpoint between 2 points
 			var x=p1[0]+(p2[0]-p1[0])*t;
