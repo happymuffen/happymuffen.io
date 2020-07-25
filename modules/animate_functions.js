@@ -69,8 +69,8 @@ export class sprite{//takes svg file and instruction set
 		//returns current frame if timer>0
 		if(this.stack.length==0) this.idle();
 		if(this.timer[0]>0){this.timer[0]-=1;return this.currentFrame}
-		var nextFrame=this.stack.shift();
 		this.svg_ai();
+		var nextFrame=this.stack.shift();
 		nextFrame=this.svg_set_position(nextFrame);
 		this.timer.shift();
 		return this.print(nextFrame);
@@ -146,108 +146,38 @@ export class sprite{//takes svg file and instruction set
 }
 
 export class path{//abstract beziar curve. This is going to take a lot of math
-	constructor(points,absolute){//takes an array of 4 points [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
+	constructor(points,absolute){//takes an array of points [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
 		this.start=points[0];
 		this.end=points[points.length-1];
 		this.points=points;
 		this.absolute=absolute;//are the points in absolute value or relative to the start?
 	}
+	//inkscape doesn't mearly append new points to the end to extend a curve,
+	//it sets the end point as the new origin for the next set of points
 	
-	
-	get_point(t){//gets x,y value at a point t% along the path
-		//B(t)=(1-t)^3*P0+3(1-t)^2*t*P1+3(1-t)*t^2*P2+t^3P3,	0<=t<=1
-		var x=0;
-		var y=0;
-		for(var i=1;i<3;i++){
-			x+=3*Math.pow(1-t,3-i)*Math.pow(t,i)*this.points[i][0];
-			y+=3*Math.pow(1-t,3-i)*Math.pow(t,i)*this.points[i][1];
-		}
-		x+=Math.pow(1-t,3)*this.end[0];
-		y+=Math.pow(1-t,3)*this.end[1];
-		if(this.absolute){
-			x+=Math.pow(1-t,3)*this.start[0];
-			y+=Math.pow(1-t,3)*this.start[1];
-		}
-		else{
-			x+=this.start[0];
-			y+=this.start[1];
-		}
-		return [x,y];
-	}
-	get_slope(t){//finds derivative of curve at a point %t along the path
-		//B'(t)=3(1-t)^2(P1-P0)+6(1-t)t(P2-P1)+3t^2(P3-P2),	0<=t<=1
-		var dx=0, dy=0;
-		var start=[0,0];
-		if(this.absolute)start=this.start;
-		dx=3*Math.pow(1-t,2)*(this.points[1][0]-start[0]);
-		dx+=6*(1-t)*t*(this.points[2][0]-this.points[1][0]);
-		dx+=3*Math.pow(t,2)*(this.end[0]-this.points[2][0]);
-		
-		dy=3*Math.pow(1-t,2)*(this.points[1][1]-start[1]);
-		dy+=6*(1-t)*t*(this.points[2][1]-this.points[1][1]);
-		dy+=3*Math.pow(t,2)*(this.end[1]-this.points[2][1]);
-		
-		return [dx,dy];
-	}
-	
-	//transform functions
-	translate(d){//produces new curve translated by d
-		var points=this.points;
-		if(this.absolute){
-			for(var i=0;i>4;i++){
-				points[i]=[points[i][0]+c[0],points[i][1]+c[1]];
-			}
-		}
-		else points[0]=[points[0][0]+c[0],points[0][1]+c[1]];
-		return new path(points,this.absolute);
-	}
-	rotate(c,t){//produces a new curve rotated about point c by angle t (radians)
-		//shift everything so c is at 0,0
-		var shift=this.translate([c[0]*-1,c[1]*-1]);
-		var points=shift.points;
-		//rotate everything
-		var start
-		for(var i=0;i<4;i++){
-			var x=[points[i][0]*Math.cos(t)-points[i][1]*Math.sin(t)];
-			var y=[points[i][1]*Math.cos(t)+points[i][0]*Math.sin(t)];
-			points[i]=[x,y];
-		}
-		//shifts everything back
-		shift=new path(points,this.absolute);
-		return shift.translate(c);
-	}
-	skew(c,d){//multiplies eveything by scaler d[] reletive to point c
-		//reposition points to be reletive to c
-		var points=this.points
-		var x=0,y=0;
-		points[0]=[points[0][0]-c[0],points[0][1]-c[1]];
-		if(this.absolute){
-			for(var i=1;i<4;i++){
-				points[i]=[points[i][0]-c[0],points[i][1]-c[1]];
+	set is_absolute(b){
+		if(this.absolute==b)return;
+		if(b){
+			var o=this.start;
+			for(var i=1;i<this.points.length;i++){
+				this.points[i][0]+=o[0];
+				this.points[i][1]+=o[1];
+				if(i%3==0)o=this.points[i];
 			}
 		}
 		else{
-			for(var i=1;i<4;i++){
-				points[i]=[points[i][0]+points[0][0],points[i][1]+points[0][1]];
+			var o=this.start;
+			for(var i=1;i<this.points.length;i++){
+				this.points[i][0]-=o[0];
+				this.points[i][1]-=o[1];
+				if(i%3==0){
+					o[0]+=this.points[i][0];
+					o[1]+=this.points[i][1];
+				}
 			}
 		}
-		//skew everything
-		for(var i=0;i<4;i++){
-			point[i]=[point[i][0]*d[0],point[i][1]*d[1]];
-		}
-		//reposition everything back
-		if(this.absolute){
-			for(var i=0;i<4;i++){
-				points[i]=[points[i][0]+c[0],points[i][1]+c[1]];
-			}
-			return new curve(points,true);
-		}
-		for(var i=1;i<4;i++){
-			points[i]=[points[i][0]-points[0][0],points[i][1]-points[0][1]];
-			
-		}
-		points[0]=[points[0][0]+c[0],points[0][1]+c[1]];
-		return new curve(points,false);
+		
+		this.absolute=b;
 	}
 	
 	split(t){//subdivides the path at the percentage through, t, returning 2 paths.
@@ -256,56 +186,171 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 			var y=p1[1]+(p2[1]-p1[1])*t;
 			return [x,y];
 		}
-		if(t==0) return [new path([this.start,[0,0],[0,0],[0,0]],false),new path(this.points,this.absolute)];
-		if(t==1) return [new path(this.points,this.absolute),new path([this.end,[0,0],[0,0],[0,0]],false)];
+		var l=[this.start],r=[];
+		//sanity check
+		if(t<=0) return [new path([this.start,[0,0],[0,0],[0,0]],false),new path(this.points,this.absolute)];
 		
-		var l1=0;//if relative handle first point differently
-		if(this.absolute)l1=midpoint(this.start,this.points[1],t);
-		else l1=midpoint([0,0],this.points[1],t);
-		
-		var m=midpoint(this.points[1],this.points[2],t);
-		var r2=midpoint(this.points[2],this.end,t);
-		var l2=midpoint(l1,m,t);
-		var r1=midpoint(m,r2,t);
-		var c=midpoint(l2,r1,t);
-		
-		if(this.absolute)return [new path([this.start,l1,l2,c],true),new path([c,r1,r2,this.end],true)];
-		function add_p(p1,p2){//adds the x and y components of 2 points
-			return [p1[0]+p2[0],p1[1]+p2[1]];
+		for(var i=1;i<=t;i++){	//all full paths to the left of t get added to t
+			l.push(this.points[i*3-2]);
+			l.push(this.points[i*3-1]);
+			l.push(this.points[i*3]);
 		}
-		var nc=[c[0]*-1,c[1]*-1];
-		var r=[add_p(this.start,c),add_p(r1,nc),add_p(r2,nc),add_p(this.end,nc)];
-		
-		return [new path([this.start,l1,l2,c],false),new path(r,false)];
+		var o=this.start;
+		var i=1;
+		for(;i<t;i++){
+			o[0]+=this.points[3*i][0];
+			o[1]+=this.points[3*1][1];
+		}
+		if(t%1){	//if some fraction of path
+			//get path section			
+			var p1=this.points[i*3+1];
+			var p2=this.points[i*3+2];
+			var p3=this.points[i*3+3];
+			
+			//split path section
+			var start=[0,0];
+			if(this.absolute)start=o;
+			var l1=midpoint(start,p1,t-i);
+			var m=midpoint(p1,p2,t-i);
+			var r2=midpoint(p2,p3,t-i);
+			var l2=midpoint(l1,m,t);
+			var r1=midpoint(m,r2,t);
+			var c=midpoint(l2,r1,t);
+			//handle absolute/reletive
+			l.push(l1,l2,c);
+			if(this.absolute){//just push everything where it needs to be
+				r.push(c,r1,r2);
+				i*=3;
+				for(;i<this.points.length;i++)r.push(this.points[i]);
+			}
+			else{
+				r1=[c[0]+r1[0],c[1]+r1[1]];
+				r2=[c[0]+r2[0],c[1]+r2[1]];
+				p3=[c[0]+p3[0],c[1]+p3[1]];
+				c=[c[0]+o[0],c[1]+o[1]];
+				r.push(c,r1,r2,p3);
+				i=i*3+1;
+				for(;i<this.points.length;i++)r.push(this.points[i]);
+			}
+			//return paths
+			return [l,r];
+		}
+		i*=3;
+		for(;i<this.points.length;i++)r.push(this.points[i]);
+		if(!this.absolute){
+			r[0][0]+=o[0];
+			r[0][1]+=o[1];
+		}
+		return [l,r];
 	}
-	extend(p3, p4){//produces a new curve that attatches continuously from this curve to the 2nd point modified by the first
-		var p1=[];
-		var p2=[];
-		if (this.absolute){
-			p1=this.end;
-			var dx=this.points[2][0]-p1[0];
-			var dy=this.points[2][1]-p1[1];
-			p2=[p1[0]-dx,p1[1]-dy];
+	
+	get_point(t){//gets x,y value at a point t% along the path
+		//B(t)=(1-t)^3*P0+3(1-t)^2*t*P1+3(1-t)*t^2*P2+t^3P3,	0<=t<=1
+		
+		//find relevent group of points
+		var o=[0,0];
+		var i=0;
+		for(;i<t;i++){
+				o[0]+=this.points[3*i][0];
+				o[1]+=this.points[3*1][1];
+		}
+		var p0=[0,0];
+		if(this.absolute) p0=this.points[i];
+		var p1=this.points[i+1];
+		var p2=this.points[i+2];
+		var p3=this.points[i+3];
+		
+		//use equation
+		var p=t-i;
+		var x=Math.pow(1-p,3)*p0[0];
+		x+=3*Math.pow(1-p,2)*p1[0];
+		x+=3*(1-p)*Math.pow(p,2)*p2[0];
+		x+=Math.pow(p,3)*p3[0];
+		
+		var y=	Math.pow(1-p,3)*p0[1];
+		y+=3*Math.pow(1-p,2)*p1[1];
+		y+=3*(1-p)*Math.pow(p,2)*p2[1];
+		y+=Math.pow(p,3)*p3[1];
+		
+		//handle absolute/reletive and return
+		if(absolute) return [x,y];
+		return [x+o[0],y+o[1]];
+	}
+	get_slope(t){//finds derivative of curve at a point %t along the path
+		//B'(t)=3(1-t)^2(P1-P0)+6(1-t)t(P2-P1)+3t^2(P3-P2),	0<=t<=1
+		
+		//find relevent group of points
+		var i=Math.floor(t)*3;
+		if(t==i&&i>0) i--;
+		var p0=[0,0];
+		if(this.absolute) p0=this.points[i];
+		var p1=this.points[i+1];
+		var p2=this.points[i+2];
+		var p3=this.points[i+3];
+		
+		//use equation
+		var start=[0,0];
+		var p=t-i;
+		var dx=3*Math.pow(1-p,2)*(p1[0]-p0[0]);
+		dx+=6*(1-p)*p*(p2[0]-p1[0]);
+		dx+=3*Math.pow(p,2)*(p3[0]-p2[0]);
+		
+		var dy=3*Math.pow(1-p,2)*(p1[1]-p0[1]);
+		dy+=6*(1-p)*p*(p2[1]-p1[1]);
+		dy+=3*Math.pow(p,2)*(p3[1]-p2[1]);
+		
+		return [dx,dy];
+	}
+	
+	//transform functions
+	translate(d){//produces new curve translated by d
+		var points=this.points;
+		if(this.absolute){
+			for(var i=0;i>this.points.length;i++){
+				points[i]=[points[i][0]+c[0],points[i][1]+c[1]];
+			}
 		}
 		else{
-			p1=[this.start[0]+this.end[0].this.start[1]+this.end[1]];
-			var x=(this.points[2][0]-this.end[0])*-1;
-			var y=(this.points[2][1]-this.end[1])*-1;
-			p2=[x,y];
+			points[0]=[points[0][0]+c[0],points[0][1]+c[1]];
 		}
-		return new path([p1,p2,p3,p4],this.absolute);
+		return new path(points,this.absolute);
 	}
-	length(){//finds the length of the curve (i think, not sure if this actually checks out
-		function dist(p1,p2){
-			return Math.sqrt(Math.pow(p1[0]-p2[0],2)+Math.pow(p1[1]-p2[1],2));
-		}
-		d1=this.help_len();
-		tmps=this.split(.5);
-		d2=tmps[0].help_len()+tmps[1].help_len();
-		return (2*d2)-d1;//there's no way this is actually right.
+	rotate(c,t){//produces a new curve rotated about point c by angle t (radians)
 		
+		//shift everything so c is at 0,0
+		var shift=this.translate([c[0]*-1,c[1]*-1]);
+		shift.absolute=true;
+		var points=shift.points;
+		
+		//rotate everything
+		var start
+		for(var i=0;i<points.length;i++){
+			var x=[points[i][0]*Math.cos(t)-points[i][1]*Math.sin(t)];
+			var y=[points[i][1]*Math.cos(t)+points[i][0]*Math.sin(t)];
+			points[i]=[x,y];
+		}
+		
+		//shifts everything back
+		shift=new path(points,true);
+		shift=shift.translate(c);
+		shift.absolute=this.absolute;
+		return shift;
 	}
-	help_len(){//helper function for finding length
-		return dist(this.start,this.points[1])+dist(this.points[1],this.points[2])+dist(this.points[2],this.end);
+	skew(c,d){//multiplies eveything by scaler d[] reletive to point c
+		
+		//reposition points to be reletive to c
+		var shift=this.translate([c[0]*-1,c[1]*-1]);
+		shift.absolute=true;
+		var points=shift.points;
+		
+		//skew everything
+		for(var i=0;i<points.length;i++){
+			point[i]=[point[i][0]*d[0],point[i][1]*d[1]];
+		}
+		//reposition everything back
+		shift=new path(points,true);
+		shift=shift.translate(c);
+		shift.absolute=this.absolute;
+		return shift;
 	}
 }
