@@ -254,6 +254,7 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 				o[0]+=this.points[3*i][0];
 				o[1]+=this.points[3*1][1];
 		}
+		if(i>0)i--;
 		var p0=[0,0];
 		if(this.absolute) p0=this.points[i];
 		var p1=this.points[i+1];
@@ -273,7 +274,7 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 		y+=Math.pow(p,3)*p3[1];
 		
 		//handle absolute/reletive and return
-		if(absolute) return [x,y];
+		if(this.absolute) return [x,y];
 		return [x+o[0],y+o[1]];
 	}
 	get_slope(t){//finds derivative of curve at a point %t along the path

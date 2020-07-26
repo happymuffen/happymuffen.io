@@ -55,14 +55,75 @@ export class butterfly extends sprite{
 	}
 
 	moving(){
-		//memory:["moving", path[], progress, total_steps]
+		//memory:["moving", path{}, progress, total_steps, lastflap]
 		if (this.memory[2] >=this.memory[3]) {this.idle();return;}//check if further movement is required
 		this.memory[2]++;
 		[this.x,this.y]=this.memory[1].get_point(this.memory[2]/this.memory[3]);
 		this.timer=[0,0];
-		this.stack=this.svg_reformat(this.spriteSheets[2]);
-
+		this.transform(this.memory);
 		return;
+	}
+	transform(memory){//changes butterfly to be flying at correct angle, and flapping
+		
+		//get all curves in svg
+		var svg=this.svg_reformat(this.spriteSheets[2])[0];
+		var parsed;
+		if (window.DOMParser)
+		{
+			var parser = new DOMParser();
+			parsed = parser.parseFromString(svg, "text/xml");
+		}
+		else
+		{
+			parsed = new ActiveXObject("Microsoft.XMLDOM");
+			parsed.async = false;
+			parsed.loadXML(svg);
+		}
+		var elements=parsed.getElementsByTagName("path");
+		//~ //add values to each element
+		//~ var tmp=[];
+		//~ var xy=[];
+		//~ var str="";
+		//~ for(var i=0;i<elements.length;i++){
+			//~ tmp=elements[i].attributes["d"].value.split(" ")
+			//~ //console.log(tmp);
+			//~ xy=tmp[1].split(",");
+			//~ xy=[this.x+Number(xy[0]),this.y+Number(xy[1])];
+			//~ tmp[1]=xy[0]+","+xy[1];
+			//~ str="";
+			//~ for(;tmp.length>0;str+=tmp.shift()+" ");//I'm unreasonably proud of this for loop :D
+			//~ elements[i].attributes["d"].value=str;
+		//~ }
+		//~ //return to string and output
+		//~ str="";
+		//~ for(var i=0;i<elements.length;i++){
+			//~ str+=elements[i].outerHTML+"\n";
+		//~ }		
+		//~ svg=this.svg_reformat([str]);
+		
+		
+		var paths=[];
+		var tmp=[];
+		for(var i=0;i<elements.length;i++){
+			var tmppath=[];
+			tmp=elements[i].attributes["d"].value.split(" ")
+			var nums;
+			while(tmp.length>0){
+				nums=tmp.shift().split(",");
+				if(nums.length==1)continue;
+				tmppath.push([Number(nums[0]),Number(nums[1])]);
+			}
+			paths.push(new path(tmppath,false));
+		}
+		
+		//get current angle
+		var delta=memory[1].getslope(memory[2]);
+		
+		//flap if you should flap
+		//rebuild stack
+		
+		this.stack=this.svg_reformat(this.spriteSheets[2]);
+		this.stack.push(this.stack[0]);
 	}
 	
 }
