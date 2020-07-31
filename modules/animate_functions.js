@@ -29,6 +29,10 @@ export class sprite{//takes svg file and instruction set
 			//LayersData holds all the data avalible in the layer tag. Some is neccecary for proper display (like translate) 
 			this.layersData.push(layers[i]["attributes"])
 			if(this.layersData[this.layersData.length-1][2].nodeValue=="idle")this.idleIndex=spritesheets.length;//Atribute 2 is "inkscape:label"
+			if(layers[i]["attributes"][0].nodeValue=="center"){
+				var tmp=layers[i].innerHTML.match(/\d+\.\d+,\d+\.\d+/gi)[0].split(",");
+				this.center=tmp.map(Number);
+			}
 			spritesheets.push(frames);
 			frames=[];
 		}
@@ -282,7 +286,7 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 		
 		//find relevent group of points
 		var i=Math.floor(t)*3;
-		if(t==i&&i>0) i--;
+		if(t%1==0) i-=3;
 		var p0=[0,0];
 		if(this.absolute) p0=this.points[i];
 		var p1=this.points[i+1];
@@ -304,7 +308,7 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 	}
 	
 	//transform functions
-	translate(d){//produces new curve translated by d
+	translate(c){//produces new curve translated by d
 		var points=this.points;
 		if(this.absolute){
 			for(var i=0;i>this.points.length;i++){
@@ -317,17 +321,16 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 		return new path(points,this.absolute);
 	}
 	rotate(c,t){//produces a new curve rotated about point c by angle t (radians)
-		
 		//shift everything so c is at 0,0
 		var shift=this.translate([c[0]*-1,c[1]*-1]);
 		shift.absolute=true;
 		var points=shift.points;
+		var os=points[0];
 		
 		//rotate everything
-		var start
 		for(var i=0;i<points.length;i++){
-			var x=[points[i][0]*Math.cos(t)-points[i][1]*Math.sin(t)];
-			var y=[points[i][1]*Math.cos(t)+points[i][0]*Math.sin(t)];
+			var x=points[i][0]*Math.cos(t)-points[i][1]*Math.sin(t);
+			var y=points[i][1]*Math.cos(t)+points[i][0]*Math.sin(t);
 			points[i]=[x,y];
 		}
 		
@@ -335,6 +338,7 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 		shift=new path(points,true);
 		shift=shift.translate(c);
 		shift.absolute=this.absolute;
+		console.log("center: "+c+"\ntheta: "+t+"\nold start: "+os+"\nnew start: "+points[0]);
 		return shift;
 	}
 	skew(c,d){//multiplies eveything by scaler d[] reletive to point c
@@ -346,7 +350,7 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 		
 		//skew everything
 		for(var i=0;i<points.length;i++){
-			point[i]=[point[i][0]*d[0],point[i][1]*d[1]];
+			points[i]=[points[i][0]*d[0],points[i][1]*d[1]];
 		}
 		//reposition everything back
 		shift=new path(points,true);

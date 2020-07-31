@@ -65,6 +65,8 @@ export class butterfly extends sprite{
 	}
 	transform(memory){//changes butterfly to be flying at correct angle, and flapping
 		
+		this.stack=this.svg_reformat(this.spriteSheets[2]);
+		
 		//get all curves in svg
 		var svg=this.svg_reformat(this.spriteSheets[2])[0];
 		var parsed;
@@ -117,13 +119,33 @@ export class butterfly extends sprite{
 		}
 		
 		//get current angle
-		var delta=memory[1].getslope(memory[2]);
+		var delta=memory[1].get_slope(memory[2]/memory[3]);
+		var theta=(Math.atan(delta[1]/Math.abs(delta[0]))/2)+Math.PI/4;
+		for(var i=0;i<paths.length;i++){
+			paths[i]=paths[i].rotate(this.center,theta);
+			if (delta[0]<0)paths[i]=paths[i].skew([this.x,this.y],[-1,1]);
+		}
+		
 		
 		//flap if you should flap
 		//rebuild stack
+			//stick back into elements
+		var str="";
+		for(var i=0;i<paths.length;i++){
+			str="m "+paths[i].points[0][0]+","+paths[i].points[0][1]+" c ";
+			for (var j=1;j<paths[i].points.length;j++){//only handles if reletive
+				str+=paths[i].points[j][0]+","+paths[i].points[j][1]+" ";
+			}
+			elements[i].attributes["d"].value=str;
+		}
 		
-		this.stack=this.svg_reformat(this.spriteSheets[2]);
-		this.stack.push(this.stack[0]);
+		//return to string and add to stack
+		str="";
+		for(var i=0;i<elements.length;i++){
+			str+=elements[i].outerHTML+"\n";
+		}		
+		
+		this.stack.push(this.svg_reformat([str]));
 	}
 	
 }
