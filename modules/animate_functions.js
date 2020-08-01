@@ -159,7 +159,7 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 	//inkscape doesn't mearly append new points to the end to extend a curve,
 	//it sets the end point as the new origin for the next set of points
 	
-	set is_absolute(b){
+	set abs(b){
 		if(this.absolute==b)return;
 		if(b){
 			var o=this.start;
@@ -268,13 +268,13 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 		//use equation
 		var p=t-i;
 		var x=Math.pow(1-p,3)*p0[0];
-		x+=3*Math.pow(1-p,2)*p1[0];
-		x+=3*(1-p)*Math.pow(p,2)*p2[0];
+		x+=3*Math.pow(1-p,2)*p*p1[0];
+		x+=3*(1-p)*Math.pow(p,2)*(1-p)*p2[0];
 		x+=Math.pow(p,3)*p3[0];
 		
 		var y=	Math.pow(1-p,3)*p0[1];
-		y+=3*Math.pow(1-p,2)*p1[1];
-		y+=3*(1-p)*Math.pow(p,2)*p2[1];
+		y+=3*Math.pow(1-p,2)*p*p1[1];
+		y+=3*(1-p)*Math.pow(p,2)*(1-p)*p2[1];
 		y+=Math.pow(p,3)*p3[1];
 		
 		//handle absolute/reletive and return
@@ -311,7 +311,7 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 	translate(c){//produces new curve translated by d
 		var points=this.points;
 		if(this.absolute){
-			for(var i=0;i>this.points.length;i++){
+			for(var i=0;i<this.points.length;i++){
 				points[i]=[points[i][0]+c[0],points[i][1]+c[1]];
 			}
 		}
@@ -323,9 +323,9 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 	rotate(c,t){//produces a new curve rotated about point c by angle t (radians)
 		//shift everything so c is at 0,0
 		var shift=this.translate([c[0]*-1,c[1]*-1]);
-		shift.absolute=true;
+		shift.abs=true;
 		var points=shift.points;
-		var os=points[0];
+		//~ var os=points[0];
 		
 		//rotate everything
 		for(var i=0;i<points.length;i++){
@@ -337,8 +337,8 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 		//shifts everything back
 		shift=new path(points,true);
 		shift=shift.translate(c);
-		shift.absolute=this.absolute;
-		console.log("center: "+c+"\ntheta: "+t+"\nold start: "+os+"\nnew start: "+points[0]);
+		shift.abs=this.absolute;
+		//~ console.log("center: "+c+"\ntheta: "+t+"\nold start: "+os+"\nnew start: "+points[0]);
 		return shift;
 	}
 	skew(c,d){//multiplies eveything by scaler d[] reletive to point c

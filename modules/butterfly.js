@@ -21,6 +21,7 @@ export class butterfly extends sprite{
 	move(){//sets paramiters for moving
 		this.stack=this.svg_reformat(this.spriteSheets[2]);
 		var p=new path([[this.x,this.y],[this.x,this.y+10],[this.lmp[0],this.lmp[1]-10],this.lmp],true);
+		console.log(p.points);
 		this.memory=["moving",p,0,20];
 		this.timer=[0];
 		this.currentFrame=this.print(this.stack[0]);
@@ -82,27 +83,6 @@ export class butterfly extends sprite{
 			parsed.loadXML(svg);
 		}
 		var elements=parsed.getElementsByTagName("path");
-		//~ //add values to each element
-		//~ var tmp=[];
-		//~ var xy=[];
-		//~ var str="";
-		//~ for(var i=0;i<elements.length;i++){
-			//~ tmp=elements[i].attributes["d"].value.split(" ")
-			//~ //console.log(tmp);
-			//~ xy=tmp[1].split(",");
-			//~ xy=[this.x+Number(xy[0]),this.y+Number(xy[1])];
-			//~ tmp[1]=xy[0]+","+xy[1];
-			//~ str="";
-			//~ for(;tmp.length>0;str+=tmp.shift()+" ");//I'm unreasonably proud of this for loop :D
-			//~ elements[i].attributes["d"].value=str;
-		//~ }
-		//~ //return to string and output
-		//~ str="";
-		//~ for(var i=0;i<elements.length;i++){
-			//~ str+=elements[i].outerHTML+"\n";
-		//~ }		
-		//~ svg=this.svg_reformat([str]);
-		
 		
 		var paths=[];
 		var tmp=[];
@@ -123,17 +103,23 @@ export class butterfly extends sprite{
 		var theta=(Math.atan(delta[1]/Math.abs(delta[0]))/2)+Math.PI/4;
 		for(var i=0;i<paths.length;i++){
 			paths[i]=paths[i].rotate(this.center,theta);
-			if (delta[0]<0)paths[i]=paths[i].skew([this.x,this.y],[-1,1]);
+			//if (delta[0]<0)paths[i]=paths[i].skew([this.x,this.y],[-1,1]);
 		}
 		
 		
 		//flap if you should flap
 		//rebuild stack
+		
+		for(var i=0;i<paths.length;i++){
+			for(var j=0;j<paths[i].points.length;j++){
+				paths[i].points[j]=[Number(paths[i].points[j][0].toPrecision(4)),Number(paths[i].points[j][1].toPrecision(4))];
+			}
+		}
 			//stick back into elements
 		var str="";
 		for(var i=0;i<paths.length;i++){
 			str="m "+paths[i].points[0][0]+","+paths[i].points[0][1]+" c ";
-			for (var j=1;j<paths[i].points.length;j++){//only handles if reletive
+			for (var j=1;j<paths[i].points.length;j++){//only use if reletive
 				str+=paths[i].points[j][0]+","+paths[i].points[j][1]+" ";
 			}
 			elements[i].attributes["d"].value=str;
@@ -143,9 +129,10 @@ export class butterfly extends sprite{
 		str="";
 		for(var i=0;i<elements.length;i++){
 			str+=elements[i].outerHTML+"\n";
-		}		
+		}
+		var asdf=this.svg_reformat([str])
 		
-		this.stack.push(this.svg_reformat([str]));
+		this.stack.unshift(asdf[0]);
 	}
 	
 }
