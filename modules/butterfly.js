@@ -20,7 +20,7 @@ export class butterfly extends sprite{
 	}
 	move(){//sets paramiters for moving
 		this.stack=this.svg_reformat(this.spriteSheets[2]);
-		var p=new path([[this.x,this.y],[this.x,this.y+10],[this.lmp[0],this.lmp[1]-10],this.lmp],true);
+		var p=new path([[this.x,this.y],[this.x,this.y+50],[this.lmp[0],this.lmp[1]],this.lmp],true);
 		console.log(p.points);
 		this.memory=["moving",p,0,20];
 		this.timer=[0];
@@ -100,10 +100,11 @@ export class butterfly extends sprite{
 		
 		//get current angle
 		var delta=memory[1].get_slope(memory[2]/memory[3]);
-		var theta=(Math.atan(delta[1]/Math.abs(delta[0]))/2)+Math.PI/4;
+		var theta=(Math.atan(delta[1]/Math.abs(delta[0]))/2);
+		//theta=((theta/Math.PI)**.5)*Math.PI;
 		for(var i=0;i<paths.length;i++){
 			paths[i]=paths[i].rotate(this.center,theta);
-			//if (delta[0]<0)paths[i]=paths[i].skew([this.x,this.y],[-1,1]);
+			if (delta[0]<0)paths[i]=paths[i].skew(this.center,[-1,1]);
 		}
 		
 		

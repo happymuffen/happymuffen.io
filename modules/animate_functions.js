@@ -42,7 +42,7 @@ export class sprite{//takes svg file and instruction set
 		this.spriteSheets=spritesheets;
 		//this.backup=raw;
 		this.x=80;
-		this.y=-30;
+		this.y=0;
 		this.stack=[];
 		this.layerIndex=this.idleIndex;
 		this.timer=[0];
@@ -345,7 +345,7 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 		
 		//reposition points to be reletive to c
 		var shift=this.translate([c[0]*-1,c[1]*-1]);
-		shift.absolute=true;
+		shift.abs=true;
 		var points=shift.points;
 		
 		//skew everything
@@ -355,7 +355,7 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 		//reposition everything back
 		shift=new path(points,true);
 		shift=shift.translate(c);
-		shift.absolute=this.absolute;
+		shift.abs=this.absolute;
 		return shift;
 	}
 }
