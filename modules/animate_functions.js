@@ -151,9 +151,12 @@ export class sprite{//takes svg file and instruction set
 
 export class path{//abstract beziar curve. This is going to take a lot of math
 	constructor(points,absolute){//takes an array of points [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
-		this.start=points[0];
-		this.end=points[points.length-1];
-		this.points=points;
+		this.points=[];
+		for(var i=0;i<points.length;i++){
+			this.points.push([points[i][0],points[i][1]]);//deep copy
+		}
+		this.start=this.points[0];
+		this.end=this.points[points.length-1];
 		this.absolute=absolute;//are the points in absolute value or relative to the start?
 	}
 	//inkscape doesn't mearly append new points to the end to extend a curve,
@@ -170,13 +173,14 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 			}
 		}
 		else{
-			var o=this.start;
-			for(var i=1;i<this.points.length;i++){
+			var o=[0,0];
+			var tmp=[0,0];
+			for(var i=0;i<this.points.length;i++){
+				tmp=[this.points[i][0],this.points[i][1]];
 				this.points[i][0]-=o[0];
 				this.points[i][1]-=o[1];
 				if(i%3==0){
-					o[0]+=this.points[i][0];
-					o[1]+=this.points[i][1];
+					o=[tmp[0],tmp[1]];
 				}
 			}
 		}
@@ -311,7 +315,7 @@ export class path{//abstract beziar curve. This is going to take a lot of math
 	translate(c){//produces new curve translated by d
 		var points=this.points;
 		if(this.absolute){
-			for(var i=0;i<this.points.length;i++){
+			for(var i=0;i<points.length;i++){
 				points[i]=[points[i][0]+c[0],points[i][1]+c[1]];
 			}
 		}

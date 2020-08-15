@@ -97,20 +97,35 @@ export class butterfly extends sprite{
 			}
 			paths.push(new path(tmppath,false));
 		}
-		
 		//get current angle
 		var delta=memory[1].get_slope(memory[2]/memory[3]);
 		var theta=(Math.atan(delta[1]/Math.abs(delta[0]))/2);
 		//theta=((theta/Math.PI)**.5)*Math.PI;
+		
+		//flap if you should flap
+			//determine flap (tweek numbers till it looks right
+		if(delta[1]>5){//if going up, flap a lot
+			
+		}
+		else{
+			if(theta>-.4){//if level wings open a lot
+				
+			}
+			else{//if going down, closed a lot
+				
+			}
+		}
+		
+			//copy wing paths
+			//skew wing paths
+		
+		//rotate butterfly
 		for(var i=0;i<paths.length;i++){
 			paths[i]=paths[i].rotate(this.center,theta);
 			if (delta[0]<0)paths[i]=paths[i].skew(this.center,[-1,1]);
 		}
 		
-		
-		//flap if you should flap
 		//rebuild stack
-		
 		for(var i=0;i<paths.length;i++){
 			for(var j=0;j<paths[i].points.length;j++){
 				paths[i].points[j]=[Number(paths[i].points[j][0].toPrecision(4)),Number(paths[i].points[j][1].toPrecision(4))];
